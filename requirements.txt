@@ -1,0 +1,6 @@
+opencv-python
+numpy
+flask_cors
+flask
+werkzeug
+uuid
