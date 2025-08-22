@@ -380,26 +380,3 @@ def api_process_video():
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=8000)
 
-# Requirements:
-"""
-To run this application, install the required packages:
-
-pip install flask opencv-python numpy
-
-Usage:
-1. Save this as app.py
-2. Run: python app.py
-3. Open http://localhost:5000 in your browser
-4. Upload a video file and select processing options
-5. Download the generated composite image
-
-API Usage:
-POST to /api/process with form-data:
-- video: video file
-- mode: blend mode (optional, default: lighten)
-- alpha: alpha value (optional, default: 0.1)
-- frame_skip: frame skip (optional, default: 1)  
-- decay: decay factor for trails (optional, default: 0.95)
-
-Returns JSON with base64 encoded image.
-"""
