@@ -4,3 +4,4 @@ flask_cors
 flask
 werkzeug
 uuid
+uvicorn
