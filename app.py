@@ -12,7 +12,6 @@ from flask_cors import CORS
 app = Flask(__name__)
 CORS(app) 
 
-app = Flask(__name__)
 app.config['MAX_CONTENT_LENGTH'] = 100 * 1024 * 1024 
 
 ALLOWED_EXTENSIONS = {'mp4', 'avi', 'mov', 'mkv', 'flv', 'wmv', 'webm'}
