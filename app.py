@@ -32,7 +32,6 @@ def _resize_dims(w: int, h: int, target_h: int = 480):
     scale = target_h / float(h)
     new_w = int(w * scale)
     new_h = int(h * scale)
-    # even dimensions are safer for codecs and some ops
     new_w -= new_w % 2
     new_h -= new_h % 2
     return new_w, new_h
@@ -59,7 +58,7 @@ def clip_video_to_duration(input_path: str, output_path: str, max_duration: int 
 
     fps = cap.get(cv2.CAP_PROP_FPS)
     if not fps or fps <= 1:
-        fps = 30.0  # fallback
+        fps = 30.0
 
     total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
 
@@ -77,7 +76,6 @@ def clip_video_to_duration(input_path: str, output_path: str, max_duration: int 
     max_frames = int(min(total_frames, fps * max_duration)) if max_duration else total_frames
     written = 0
 
-    # write first frame
     out.write(first_resized)
     written += 1
 
@@ -185,7 +183,6 @@ def create_motion_trails(video_path: str, decay_factor: float = 0.95, target_h: 
     return np.clip(trail_buffer, 0, 255).astype(np.uint8)
 
 
-# ---------- Routes ----------
 @app.get("/")
 def health():
     return "ok", 200
@@ -193,7 +190,6 @@ def health():
 
 @app.route('/process', methods=['POST'])
 def process_video():
-    # Check file
     if 'video' not in request.files:
         return jsonify({'error': 'No video file provided'}), 400
     file = request.files['video']
@@ -202,14 +198,12 @@ def process_video():
     if not allowed_file(file.filename):
         return jsonify({'error': 'Invalid file type. Supported: ' + ', '.join(ALLOWED_EXTENSIONS)}), 400
 
-    # Params (form-data)
     blend_mode = request.form.get('mode', 'lighten')
     alpha = float(request.form.get('alpha', 0.1))
     frame_skip = int(request.form.get('frame_skip', 1))
     decay = float(request.form.get('decay', 0.95))
-    target_h = int(request.form.get('target_h', 480))  # SD default
+    target_h = int(request.form.get('target_h', 480))  
 
-    # Clamp
     alpha = max(0.0, min(1.0, alpha))
     frame_skip = max(1, frame_skip)
     decay = max(0.0, min(1.0, decay))
@@ -269,7 +263,6 @@ def api_process_video():
     if not allowed_file(file.filename):
         return jsonify({'error': 'Invalid file type. Supported: ' + ', '.join(ALLOWED_EXTENSIONS)}), 400
 
-    # Params (JSON or form-data)
     params = request.get_json(silent=True) or request.form.to_dict()
 
     blend_mode = params.get('mode', 'lighten')
@@ -278,7 +271,6 @@ def api_process_video():
     decay = float(params.get('decay', 0.95))
     target_h = int(params.get('target_h', 480))  # SD default
 
-    # Clamp
     alpha = max(0.0, min(1.0, alpha))
     frame_skip = max(1, frame_skip)
     decay = max(0.0, min(1.0, decay))
@@ -332,6 +324,4 @@ def api_process_video():
 
 
 if __name__ == '__main__':
-    # For local testing. On Render, use Gunicorn:
-    # gunicorn app:app --bind 0.0.0.0:$PORT --workers 2 --threads 4 --timeout 300 --graceful-timeout 300 --keep-alive 5 --worker-tmp-dir /dev/shm
     app.run(debug=True, host='0.0.0.0', port=8000)
